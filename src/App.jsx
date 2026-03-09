@@ -164,7 +164,7 @@ function Nav() {
           <span className="logo__mark">◉</span> PAUSE
         </button>
         <div className="nav__links">
-          {[["about","What We Do"],["book","The Book"],["team","Who We Are"],["newsletter","Newsletter"]].map(([id,label])=>(
+          {[["about","What We Do"],["team","Who We Are"],["book","The Book"],["newsletter","Newsletter"]].map(([id,label])=>(
             <button key={id} onClick={()=>go(id)} className="nav__link">{label}</button>
           ))}
         </div>
@@ -176,7 +176,7 @@ function Nav() {
       </div>
       {menuOpen && (
         <div className="mobile-menu">
-          {[["about","What We Do"],["book","The Book"],["team","Who We Are"],["newsletter","Newsletter"]].map(([id,label])=>(
+          {[["about","What We Do"],["team","Who We Are"],["book","The Book"],["newsletter","Newsletter"]].map(([id,label])=>(
             <button key={id} onClick={()=>go(id)} className="mobile-menu__link">{label}</button>
           ))}
         </div>
@@ -254,60 +254,6 @@ export default function PauseLab() {
         </div>
       </section>
 
-      {/* ─── BOOK ─── */}
-      <section id="book" className="section section--cream">
-        <div className="section__inner">
-          <FadeIn><p className="label">The Book</p></FadeIn>
-          <FadeIn delay={0.1}>
-            <h2 className="h2">Coming 2027 from Hachette<span className="dot">.</span></h2>
-          </FadeIn>
-          <div className="book-section">
-            <FadeIn delay={0.15} className="book-cover-col">
-              <div className="book-cover">
-                <div className="book-cover__inner">
-                  <span className="book-cover__mark">◉</span>
-                  <span className="book-cover__title">PAUSE</span>
-                  <span className="book-cover__rule" />
-                  <span className="book-cover__subtitle">Parasympathetic Intelligence<br />for the Modern Leader</span>
-                  <span className="book-cover__authors">Tarun Galagali<br />&amp; Michael Platt, PhD</span>
-                  <span className="book-cover__pub">HACHETTE · 2027</span>
-                </div>
-              </div>
-            </FadeIn>
-            <div className="book-text-col">
-              <FadeIn delay={0.2}>
-                <p className="book-text">
-                  84% of workers report mental health challenges from the workplace. Your nervous system treats a Slack notification with the same urgency it once reserved for predators. AI is accelerating the cycle.
-                </p>
-              </FadeIn>
-              <FadeIn delay={0.3}>
-                <p className="book-text">
-                  <em>Pause</em> introduces <strong>PQ — Parasympathetic Intelligence</strong> — and a framework called <strong>BEAM</strong> for developing it: <strong>Breathe</strong> (your body), <strong>Engage</strong> (others), <strong>Adapt</strong> (decisions), and <strong>Metta</strong> (the practice itself). Grounded in Wharton neuroscience research and evidence from training thousands of managers.
-                </p>
-              </FadeIn>
-              <FadeIn delay={0.45}>
-                <p className="book-text book-text--cta">
-                  Join our newsletter to follow the journey to publication.
-                </p>
-                <a href="#newsletter" onClick={(e)=>{e.preventDefault();document.getElementById("newsletter")?.scrollIntoView({behavior:"smooth"})}} className="btn btn--primary">
-                  Join the Newsletter →
-                </a>
-              </FadeIn>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── QUOTE ─── */}
-      <section className="quote-section">
-        <FadeIn>
-          <blockquote className="pullquote">
-            "The more AI can do, the more important it becomes for humans to develop the one capacity AI does not have: the ability to pause, regulate, and lead from wisdom rather than reactivity."
-          </blockquote>
-          <p className="pullquote__attr">— from <em>Pause</em></p>
-        </FadeIn>
-      </section>
-
       {/* ─── TEAM ─── */}
       <section id="team" className="section">
         <div className="section__inner">
@@ -367,6 +313,60 @@ export default function PauseLab() {
             </div>
           </FadeIn>
         </div>
+      </section>
+
+      {/* ─── BOOK ─── */}
+      <section id="book" className="section section--cream">
+        <div className="section__inner">
+          <FadeIn><p className="label">The Book</p></FadeIn>
+          <FadeIn delay={0.1}>
+            <h2 className="h2">Coming 2027 from Hachette<span className="dot">.</span></h2>
+          </FadeIn>
+          <div className="book-section">
+            <FadeIn delay={0.15} className="book-cover-col">
+              <div className="book-cover">
+                <div className="book-cover__inner">
+                  <span className="book-cover__mark">◉</span>
+                  <span className="book-cover__title">PAUSE</span>
+                  <span className="book-cover__rule" />
+                  <span className="book-cover__subtitle">Parasympathetic Intelligence<br />for the Modern Leader</span>
+                  <span className="book-cover__authors">Tarun Galagali<br />&amp; Michael Platt, PhD</span>
+                  <span className="book-cover__pub">HACHETTE · 2027</span>
+                </div>
+              </div>
+            </FadeIn>
+            <div className="book-text-col">
+              <FadeIn delay={0.2}>
+                <p className="book-text">
+                  84% of workers report mental health challenges from the workplace. Your nervous system treats a Slack notification with the same urgency it once reserved for predators. AI is accelerating the cycle.
+                </p>
+              </FadeIn>
+              <FadeIn delay={0.3}>
+                <p className="book-text">
+                  <em>Pause</em> introduces <strong>PQ — Parasympathetic Intelligence</strong> — and a framework called <strong>BEAM</strong> for developing it: <strong>Breathe</strong> (your body), <strong>Engage</strong> (others), <strong>Adapt</strong> (decisions), and <strong>Metta</strong> (the practice itself). Grounded in Wharton neuroscience research and evidence from training thousands of managers.
+                </p>
+              </FadeIn>
+              <FadeIn delay={0.45}>
+                <p className="book-text book-text--cta">
+                  Join our newsletter to follow the journey to publication.
+                </p>
+                <a href="#newsletter" onClick={(e)=>{e.preventDefault();document.getElementById("newsletter")?.scrollIntoView({behavior:"smooth"})}} className="btn btn--primary">
+                  Join the Newsletter →
+                </a>
+              </FadeIn>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── QUOTE ─── */}
+      <section className="quote-section">
+        <FadeIn>
+          <blockquote className="pullquote">
+            "The more AI can do, the more important it becomes for humans to develop the one capacity AI does not have: the ability to pause, regulate, and lead from wisdom rather than reactivity."
+          </blockquote>
+          <p className="pullquote__attr">— from <em>Pause</em></p>
+        </FadeIn>
       </section>
 
       {/* ─── NEWSLETTER ─── */}

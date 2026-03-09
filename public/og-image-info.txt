@@ -1,0 +1,18 @@
+Open Graph Image Needed
+========================
+
+For the best social media previews, create an image with these specs:
+
+Dimensions: 1200x630 pixels
+Format: PNG or JPG
+File name: og-image.png
+
+Content suggestions:
+- Pause Lab logo/wordmark
+- Tagline: "Better managers start with a pause"
+- Clean, warm background matching your brand (cream/terracotta)
+- Simple, readable design
+
+Save as: /public/og-image.png
+
+Once created, the link previews on Slack, iMessage, Twitter, LinkedIn will show this image!
