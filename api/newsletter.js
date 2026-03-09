@@ -7,10 +7,10 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const { firstName, email, phone } = req.body;
+  const { fullName, email, phone } = req.body;
 
   // Validate required fields
-  if (!firstName || !email || !phone) {
+  if (!fullName || !email || !phone) {
     return res.status(400).json({
       message: 'Please provide your name, email, and phone number'
     });
@@ -21,6 +21,22 @@ export default async function handler(req, res) {
   if (!emailRegex.test(email)) {
     return res.status(400).json({ message: 'Please provide a valid email address' });
   }
+
+  // Validate phone number format (must include country code)
+  const phoneDigits = phone.replace(/\D/g, '');
+  if (phoneDigits.length < 10) {
+    return res.status(400).json({
+      message: 'Please provide a valid phone number with country code (e.g., +14081234567)'
+    });
+  }
+
+  // Format phone to E.164 format (add + if not present)
+  const formattedPhone = phone.startsWith('+') ? phone : `+${phoneDigits}`;
+
+  // Split full name into first and last name
+  const nameParts = fullName.trim().split(/\s+/);
+  const firstName = nameParts[0];
+  const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
 
   // Get Brevo API key from environment variables
   const brevoApiKey = process.env.BREVO_API_KEY;
@@ -45,7 +61,8 @@ export default async function handler(req, res) {
         email: email,
         attributes: {
           FIRSTNAME: firstName,
-          SMS: phone
+          LASTNAME: lastName,
+          SMS: formattedPhone
         },
         listIds: [2], // Default Brevo list ID - you'll update this after creating your list
         updateEnabled: true // Update contact if already exists

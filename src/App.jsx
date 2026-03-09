@@ -40,7 +40,7 @@ function FadeIn({ children, delay = 0, className = "", style = {} }) {
 
 function NewsletterForm() {
   const [formData, setFormData] = useState({
-    firstName: "",
+    fullName: "",
     email: "",
     phone: ""
   });
@@ -51,6 +51,14 @@ function NewsletterForm() {
     e.preventDefault();
     setStatus("loading");
     setErrorMessage("");
+
+    // Validate phone number format
+    const phoneDigits = formData.phone.replace(/\D/g, '');
+    if (phoneDigits.length < 10) {
+      setStatus("error");
+      setErrorMessage("Please enter a valid phone number with country code (e.g., +14081234567)");
+      return;
+    }
 
     try {
       const response = await fetch("/api/newsletter", {
@@ -67,7 +75,7 @@ function NewsletterForm() {
       }
 
       setStatus("success");
-      setFormData({ firstName: "", email: "", phone: "" });
+      setFormData({ fullName: "", email: "", phone: "" });
     } catch (error) {
       setStatus("error");
       setErrorMessage(error.message || "Failed to subscribe. Please try again.");
@@ -96,9 +104,9 @@ function NewsletterForm() {
       <div className="form-row">
         <input
           type="text"
-          name="firstName"
-          placeholder="First name"
-          value={formData.firstName}
+          name="fullName"
+          placeholder="Full name"
+          value={formData.fullName}
           onChange={handleChange}
           required
           className="form-input"
@@ -117,7 +125,7 @@ function NewsletterForm() {
         <input
           type="tel"
           name="phone"
-          placeholder="Phone number"
+          placeholder="Phone (e.g., +14081234567)"
           value={formData.phone}
           onChange={handleChange}
           required
