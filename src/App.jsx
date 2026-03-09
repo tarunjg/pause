@@ -38,6 +38,108 @@ function FadeIn({ children, delay = 0, className = "", style = {} }) {
   );
 }
 
+function NewsletterForm() {
+  const [formData, setFormData] = useState({
+    firstName: "",
+    email: "",
+    phone: ""
+  });
+  const [status, setStatus] = useState("idle"); // idle, loading, success, error
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus("loading");
+    setErrorMessage("");
+
+    try {
+      const response = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Something went wrong");
+      }
+
+      setStatus("success");
+      setFormData({ firstName: "", email: "", phone: "" });
+    } catch (error) {
+      setStatus("error");
+      setErrorMessage(error.message || "Failed to subscribe. Please try again.");
+    }
+  };
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  if (status === "success") {
+    return (
+      <div className="newsletter-success">
+        <div className="success-icon">✓</div>
+        <p className="success-message">Welcome to the Pause Lab community!</p>
+        <p className="newsletter__note">Check your email for a confirmation.</p>
+      </div>
+    );
+  }
+
+  return (
+    <form className="newsletter-form" onSubmit={handleSubmit}>
+      <div className="form-row">
+        <input
+          type="text"
+          name="firstName"
+          placeholder="First name"
+          value={formData.firstName}
+          onChange={handleChange}
+          required
+          className="form-input"
+          disabled={status === "loading"}
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email address"
+          value={formData.email}
+          onChange={handleChange}
+          required
+          className="form-input"
+          disabled={status === "loading"}
+        />
+        <input
+          type="tel"
+          name="phone"
+          placeholder="Phone number"
+          value={formData.phone}
+          onChange={handleChange}
+          required
+          className="form-input"
+          disabled={status === "loading"}
+        />
+      </div>
+      <button
+        type="submit"
+        className="btn btn--white"
+        disabled={status === "loading"}
+      >
+        {status === "loading" ? "Joining..." : "Join the Newsletter →"}
+      </button>
+      {status === "error" && (
+        <p className="form-error">{errorMessage}</p>
+      )}
+      <p className="newsletter__note">Once a month. No spam. Unsubscribe anytime.</p>
+    </form>
+  );
+}
+
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -274,13 +376,7 @@ export default function PauseLab() {
             </p>
           </FadeIn>
           <FadeIn delay={0.3}>
-            <a
-              href="mailto:hello@pauselab.org?subject=Newsletter%20Signup&body=Hi%20Pause%20Lab%2C%0A%0AI'd%20like%20to%20join%20your%20monthly%20newsletter.%0A%0AName%3A%20%0AOrganization%3A%20%0A"
-              className="btn btn--white"
-            >
-              Join the Newsletter →
-            </a>
-            <p className="newsletter__note">Once a month. No spam. Unsubscribe anytime.</p>
+            <NewsletterForm />
           </FadeIn>
         </div>
       </section>
@@ -506,6 +602,42 @@ const globalCSS = `
     max-width:520px; margin:0 auto 36px;
   }
   .newsletter__note { font-size:12.5px; color:var(--mid); margin-top:16px; font-weight:300; }
+
+  /* ─── NEWSLETTER FORM ─── */
+  .newsletter-form { width:100%; max-width:650px; margin:0 auto; }
+  .form-row {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px;
+  }
+  .form-input {
+    padding:15px 18px; border:1.5px solid rgba(255,255,255,0.15); border-radius:8px;
+    background:rgba(255,255,255,0.05); color:#fff; font-size:15px; font-family:inherit;
+    transition:all 0.25s cubic-bezier(.22,1,.36,1);
+  }
+  .form-input::placeholder { color:rgba(255,255,255,0.4); }
+  .form-input:focus {
+    outline:none; border-color:rgba(255,255,255,0.3); background:rgba(255,255,255,0.08);
+  }
+  .form-input:disabled { opacity:0.5; cursor:not-allowed; }
+  .form-error {
+    color:#ff6b6b; font-size:14px; margin-top:12px; margin-bottom:8px;
+    padding:12px 16px; background:rgba(255,107,107,0.1); border-radius:6px;
+    border:1px solid rgba(255,107,107,0.2);
+  }
+  .newsletter-success {
+    text-align:center; padding:40px 20px;
+  }
+  .success-icon {
+    width:64px; height:64px; border-radius:50%; background:rgba(72,187,120,0.15);
+    border:2px solid rgba(72,187,120,0.3); color:#48bb78;
+    display:flex; align-items:center; justify-content:center;
+    font-size:32px; font-weight:600; margin:0 auto 20px;
+  }
+  .success-message {
+    font-size:20px; color:#fff; font-weight:500; margin-bottom:8px;
+  }
+  @media(max-width:768px) {
+    .form-row { grid-template-columns:1fr; gap:10px; }
+  }
 
   /* ─── FOOTER ─── */
   .footer { padding:24px 36px; border-top:1px solid rgba(20,18,16,0.06); }
