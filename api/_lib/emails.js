@@ -7,7 +7,7 @@ export function welcomeEmail(firstName, interests = []) {
   const parts = [];
 
   if (interests.includes('newsletter')) {
-    parts.push(`You're all set to receive our newsletter — insights from neuroscience, stories from the managers we train, and updates as the book gets closer.`);
+    parts.push(`You're all set to receive our newsletter — insights from neuroscience, stories from the leaders we train, and updates as the book gets closer.`);
   }
 
   if (interests.includes('workshop')) {
