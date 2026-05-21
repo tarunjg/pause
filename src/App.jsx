@@ -38,34 +38,46 @@ function FadeIn({ children, delay = 0, className = "", style = {} }) {
   );
 }
 
-function NewsletterForm() {
+const INTERESTS = [
+  { id: "newsletter", label: "Join the Newsletter" },
+  { id: "workshop", label: "Request a Power of Pause Workshop for My Org" },
+];
+
+function ConnectFormInline() {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
-    phone: ""
+    org: "",
+    interests: [],
+    notes: "",
   });
-  const [status, setStatus] = useState("idle"); // idle, loading, success, error
+  const [status, setStatus] = useState("idle");
   const [errorMessage, setErrorMessage] = useState("");
+
+  const toggleInterest = (id) => {
+    setFormData((prev) => ({
+      ...prev,
+      interests: prev.interests.includes(id)
+        ? prev.interests.filter((i) => i !== id)
+        : [...prev.interests, id],
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus("loading");
     setErrorMessage("");
 
-    // Validate phone number format
-    const phoneDigits = formData.phone.replace(/\D/g, '');
-    if (phoneDigits.length < 10) {
+    if (formData.interests.length === 0) {
       setStatus("error");
-      setErrorMessage("Please enter a valid phone number with country code (e.g., +14081234567)");
+      setErrorMessage("Please select at least one option.");
       return;
     }
 
     try {
-      const response = await fetch("/api/newsletter", {
+      const response = await fetch("/api/connect", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
@@ -75,37 +87,33 @@ function NewsletterForm() {
       }
 
       setStatus("success");
-      setFormData({ fullName: "", email: "", phone: "" });
     } catch (error) {
       setStatus("error");
-      setErrorMessage(error.message || "Failed to subscribe. Please try again.");
+      setErrorMessage(error.message || "Failed to submit. Please try again.");
     }
   };
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   if (status === "success") {
     return (
       <div className="newsletter-success">
         <div className="success-icon">✓</div>
-        <p className="success-message">Welcome to the Pause Lab community!</p>
-        <p className="newsletter__note">Check your email for a confirmation.</p>
+        <p className="success-message">Thanks for reaching out!</p>
+        <p className="newsletter__note">We'll be in touch soon.</p>
       </div>
     );
   }
 
   return (
-    <form className="newsletter-form" onSubmit={handleSubmit}>
-      <div className="form-row">
+    <form className="connect-form" onSubmit={handleSubmit}>
+      <div className="connect-form__fields">
         <input
           type="text"
           name="fullName"
-          placeholder="Full name"
+          placeholder="Name"
           value={formData.fullName}
           onChange={handleChange}
           required
@@ -122,28 +130,53 @@ function NewsletterForm() {
           className="form-input"
           disabled={status === "loading"}
         />
-        <input
-          type="tel"
-          name="phone"
-          placeholder="Phone (e.g., +14081234567)"
-          value={formData.phone}
-          onChange={handleChange}
-          required
-          className="form-input"
-          disabled={status === "loading"}
-        />
       </div>
+      <input
+        type="text"
+        name="org"
+        placeholder="Organization (optional)"
+        value={formData.org}
+        onChange={handleChange}
+        className="form-input connect-form__org"
+        disabled={status === "loading"}
+      />
+      <div className="connect-form__interests">
+        <p className="connect-form__interests-label">I'm interested in...</p>
+        <div className="connect-form__pills">
+          {INTERESTS.map((item) => {
+            const active = formData.interests.includes(item.id);
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className={`connect-pill${active ? " connect-pill--active" : ""}`}
+                onClick={() => toggleInterest(item.id)}
+                disabled={status === "loading"}
+              >
+                {active ? "✓ " : ""}
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      <textarea
+        name="notes"
+        placeholder="Anything you'd like us to know (optional)"
+        value={formData.notes}
+        onChange={handleChange}
+        className="form-input connect-form__notes"
+        rows={3}
+        disabled={status === "loading"}
+      />
       <button
         type="submit"
         className="btn btn--white"
         disabled={status === "loading"}
       >
-        {status === "loading" ? "Joining..." : "Join the Newsletter →"}
+        {status === "loading" ? "Sending..." : "Let's Connect →"}
       </button>
-      {status === "error" && (
-        <p className="form-error">{errorMessage}</p>
-      )}
-      <p className="newsletter__note">Once a month. No spam. Unsubscribe anytime.</p>
+      {status === "error" && <p className="form-error">{errorMessage}</p>}
     </form>
   );
 }
@@ -213,7 +246,7 @@ export default function PauseLab() {
           </FadeIn>
           <FadeIn delay={0.55}>
             <a href="#newsletter" onClick={(e)=>{e.preventDefault();document.getElementById("newsletter")?.scrollIntoView({behavior:"smooth"})}} className="btn btn--primary">
-              Join Our Newsletter →
+              Get in Touch →
             </a>
           </FadeIn>
         </div>
@@ -371,22 +404,22 @@ export default function PauseLab() {
         </FadeIn>
       </section>
 
-      {/* ─── NEWSLETTER ─── */}
+      {/* ─── CONNECT ─── */}
       <section id="newsletter" className="section section--dark">
         <div className="section__inner section__inner--center">
           <FadeIn>
-            <p className="label label--light">Stay Connected</p>
+            <p className="label label--light">Let's Connect</p>
           </FadeIn>
           <FadeIn delay={0.1}>
-            <h2 className="h2 h2--light">Perspectives from the frontline<span className="dot">.</span></h2>
+            <h2 className="h2 h2--light">We'd love to hear from you<span className="dot">.</span></h2>
           </FadeIn>
           <FadeIn delay={0.2}>
             <p className="newsletter__sub">
-              Insights from neuroscience, stories from the managers we train, and perspectives from business on what it takes to lead well. Plus updates on the book and new research.
+              Whether you're curious about our newsletter or want to bring the Power of Pause workshop to your team, drop your info below and we'll follow up.
             </p>
           </FadeIn>
           <FadeIn delay={0.3}>
-            <NewsletterForm />
+            <ConnectFormInline />
           </FadeIn>
         </div>
       </section>
@@ -613,11 +646,28 @@ const globalCSS = `
   }
   .newsletter__note { font-size:12.5px; color:var(--mid); margin-top:16px; font-weight:300; }
 
-  /* ─── NEWSLETTER FORM ─── */
-  .newsletter-form { width:100%; max-width:650px; margin:0 auto; }
-  .form-row {
-    display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px;
+  /* ─── CONNECT FORM ─── */
+  .connect-form { width:100%; max-width:520px; margin:0 auto; text-align:left; }
+  .connect-form__fields {
+    display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;
   }
+  .connect-form__org { margin-bottom:20px; }
+  .connect-form__interests { margin-bottom:20px; }
+  .connect-form__interests-label {
+    font-size:13px; color:var(--soft); font-weight:400; margin-bottom:10px;
+  }
+  .connect-form__pills { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+  .connect-pill {
+    padding:10px 20px; border-radius:100px; font-size:14px; font-weight:400;
+    border:1.5px solid rgba(255,255,255,0.15); color:var(--soft);
+    background:rgba(255,255,255,0.03); transition:all .2s ease; cursor:pointer;
+  }
+  .connect-pill:hover { border-color:rgba(255,255,255,0.3); color:#fff; }
+  .connect-pill--active {
+    border-color:var(--accent); color:#fff; background:rgba(184,92,56,0.15);
+  }
+  .connect-pill:disabled { opacity:0.5; cursor:not-allowed; }
+  .connect-form__notes { margin-bottom:24px; resize:vertical; min-height:80px; }
   .form-input {
     padding:15px 18px; border:1.5px solid rgba(255,255,255,0.15); border-radius:8px;
     background:rgba(255,255,255,0.05); color:#fff; font-size:15px; font-family:inherit;
@@ -645,8 +695,9 @@ const globalCSS = `
   .success-message {
     font-size:20px; color:#fff; font-weight:500; margin-bottom:8px;
   }
-  @media(max-width:768px) {
-    .form-row { grid-template-columns:1fr; gap:10px; }
+  @media(max-width:520px) {
+    .connect-form__fields { grid-template-columns:1fr; }
+    .connect-form__pills { flex-direction:column; align-items:center; }
   }
 
   /* ─── FOOTER ─── */
