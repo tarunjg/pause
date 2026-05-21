@@ -7,9 +7,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const { fullName, email, org, interests, notes } = req.body;
+  const { firstName, lastName, email, org, interests, notes } = req.body;
 
-  if (!fullName || !email) {
+  if (!firstName || !email) {
     return res.status(400).json({ message: 'Please provide your name and email' });
   }
 
@@ -22,10 +22,6 @@ export default async function handler(req, res) {
     return res.status(400).json({ message: 'Please provide a valid email address' });
   }
 
-  const nameParts = fullName.trim().split(/\s+/);
-  const firstName = nameParts[0];
-  const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
-
   try {
     // Upsert contact into Supabase
     const { data: contact, error: dbError } = await supabase
@@ -33,8 +29,8 @@ export default async function handler(req, res) {
       .upsert(
         {
           email: email.toLowerCase().trim(),
-          first_name: firstName,
-          last_name: lastName,
+          first_name: firstName.trim(),
+          last_name: lastName ? lastName.trim() : '',
           org: org || null,
           interests: interests,
           notes: notes || null,

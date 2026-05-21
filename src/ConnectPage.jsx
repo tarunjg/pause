@@ -8,7 +8,8 @@ const INTERESTS = [
 
 function ConnectForm() {
   const [formData, setFormData] = useState({
-    fullName: "",
+    firstName: "",
+    lastName: "",
     email: "",
     org: "",
     interests: [],
@@ -75,25 +76,35 @@ function ConnectForm() {
       <div className="connect-form__fields">
         <input
           type="text"
-          name="fullName"
-          placeholder="Name"
-          value={formData.fullName}
+          name="firstName"
+          placeholder="First name"
+          value={formData.firstName}
           onChange={handleChange}
           required
           className="form-input"
           disabled={status === "loading"}
         />
         <input
-          type="email"
-          name="email"
-          placeholder="Email address"
-          value={formData.email}
+          type="text"
+          name="lastName"
+          placeholder="Last name"
+          value={formData.lastName}
           onChange={handleChange}
           required
           className="form-input"
           disabled={status === "loading"}
         />
       </div>
+      <input
+        type="email"
+        name="email"
+        placeholder="Email address"
+        value={formData.email}
+        onChange={handleChange}
+        required
+        className="form-input connect-form__email"
+        disabled={status === "loading"}
+      />
       <input
         type="text"
         name="org"
@@ -255,6 +266,7 @@ const connectCSS = `
   .form-input:focus { outline:none; border-color:rgba(255,255,255,0.3); background:rgba(255,255,255,0.08); }
   .form-input:disabled { opacity:0.5; cursor:not-allowed; }
 
+  .connect-form__email { margin-bottom:12px; }
   .connect-form__org { margin-bottom:20px; }
   .connect-form__interests { margin-bottom:20px; }
   .connect-form__interests-label {
