@@ -58,16 +58,41 @@ export default async function handler(req, res) {
       userPrompt += `\n\nAdditional context from the author: ${context}`;
     }
 
-    userPrompt += `\n\nWrite a complete newsletter draft in HTML. Use <p>, <h2>, <blockquote>, <a>, and <img> tags. Do not include the greeting (it gets personalized per recipient). Do not include a sign-off (the template adds one). Just the body content.`;
+    userPrompt += `\n\nWrite a complete newsletter draft in HTML. Use <p>, <h2>, <blockquote>, and <a> tags. Do not include the greeting (it gets personalized per recipient). Do not include a sign-off (the template adds one). Just the body content. Do NOT wrap your output in markdown code fences (no \`\`\`html or \`\`\`). Output raw HTML directly.`;
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 2000,
-      system: `You are a ghostwriter for Tarun Galagali's Pause Lab newsletter. Write exactly in his voice using this style guide:\n\n${styleGuide}\n\nYour output is HTML that goes directly into an email template. Keep it personal, warm, grounded in neuroscience. No em dashes. 400-800 words.`,
+      system: `You are a ghostwriter for Tarun Galagali's Pause Lab newsletter. Write exactly in his voice using this style guide:
+
+${styleGuide}
+
+CRITICAL ANTI-AI PATTERNS — these make writing feel generated, never use them:
+- No antithesis pairs: "Not behind. Not frantic. Just steady." "Not just X, but Y." "Not loud, but clear." This pattern is the #1 tell of AI writing. Use straightforward declarative sentences instead.
+- No "It's not X. It's Y." constructions.
+- No tricolons (three-part lists with parallel structure for rhetorical effect): "calm, clear, and centered" / "show up, slow down, and tune in".
+- No em dashes — use commas or periods.
+- No "the truth is..." or "here's the thing..." setups.
+- No abstract platitudes ("real growth happens in the pause"). Always anchor in a specific moment or piece of research.
+- Avoid "we" when you mean "I". Tarun speaks as himself.
+
+HYPERLINKS — when you reference researchers, studies, books, or organizations, link them:
+- Researchers: link to their faculty page or recent paper. e.g. <a href="https://...">Sophie Leroy</a>, <a href="https://...">Giacomo Rizzolatti</a>
+- Studies: link to the paper if known, or the press release. e.g. "a <a href="https://...">2023 Berkeley study</a> found..."
+- If you don't know an exact URL, use a search URL as a placeholder: <a href="https://scholar.google.com/scholar?q=Sophie+Leroy+attention+residue">Sophie Leroy's research</a>
+- Always link the first mention of a real person or paper. Subsequent mentions don't need re-linking.
+
+Your output is raw HTML that goes directly into an email template. Personal, warm, grounded in neuroscience. 400-800 words.`,
       messages: [{ role: 'user', content: userPrompt }],
     });
 
-    const draftHtml = message.content[0]?.text || '';
+    let draftHtml = message.content[0]?.text || '';
+
+    // Strip markdown code fences if Claude wrapped the output anyway
+    draftHtml = draftHtml
+      .replace(/^\s*```(?:html)?\s*\n/i, '')
+      .replace(/\n\s*```\s*$/i, '')
+      .trim();
 
     return res.status(200).json({ draft: draftHtml });
   } catch (error) {

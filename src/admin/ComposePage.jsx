@@ -247,6 +247,7 @@ export default function ComposePage() {
         <PreviewModal
           subject={subject}
           bodyHtml={bodyHtml}
+          coverImage={coverImage}
           firstName="Tarun"
           onClose={() => setShowPreview(false)}
         />
