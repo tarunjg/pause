@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     const anthropic = new Anthropic({ apiKey: anthropicKey });
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2000,
       system: `You are updating a newsletter writing style guide based on engagement data. CRITICAL RULES:
 1. The "IMMUTABLE CORE" section must be preserved word-for-word. Never modify it.

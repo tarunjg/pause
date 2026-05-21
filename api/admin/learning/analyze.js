@@ -41,7 +41,7 @@ export default async function handler(req, res) {
     const anthropic = new Anthropic({ apiKey: anthropicKey });
 
     const analysis = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 1000,
       system: 'You analyze newsletter engagement data and identify patterns. Be specific and actionable. No corporate speak. Write like a smart colleague giving honest feedback.',
       messages: [{
