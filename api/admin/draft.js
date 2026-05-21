@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ message: 'ANTHROPIC_API_KEY not configured' });
   }
 
-  const { transcript, context, ideaPrompt } = req.body || {};
+  const { transcript, context, ideaPrompt, currentDraft } = req.body || {};
   if (!transcript && !ideaPrompt) {
     return res.status(400).json({ message: 'Provide a transcript or idea prompt' });
   }
@@ -44,8 +44,15 @@ export default async function handler(req, res) {
 
     const anthropic = new Anthropic({ apiKey: anthropicKey });
 
+    const hasExistingDraft = currentDraft && currentDraft.replace(/<[^>]*>/g, '').trim().length > 50;
+
     let userPrompt = '';
-    if (ideaPrompt) {
+    if (hasExistingDraft) {
+      userPrompt = `Here is the current draft of the newsletter:\n\n${currentDraft}\n\nThe author just recorded a follow-up voice note with new thoughts to integrate:\n\n${transcript || ''}`;
+      if (ideaPrompt) {
+        userPrompt += `\n\nThe original idea prompt was:\n\n${ideaPrompt}`;
+      }
+    } else if (ideaPrompt) {
       userPrompt = `Here is a newsletter idea prompt:\n\n${ideaPrompt}`;
       if (transcript) {
         userPrompt += `\n\nThe author also recorded a voice note with these thoughts:\n\n${transcript}`;
@@ -58,7 +65,11 @@ export default async function handler(req, res) {
       userPrompt += `\n\nAdditional context from the author: ${context}`;
     }
 
-    userPrompt += `\n\nWrite a complete newsletter draft in HTML. Use <p>, <h2>, <blockquote>, and <a> tags. Do not include the greeting (it gets personalized per recipient). Do not include a sign-off (the template adds one). Just the body content. Do NOT wrap your output in markdown code fences (no \`\`\`html or \`\`\`). Output raw HTML directly.`;
+    if (hasExistingDraft) {
+      userPrompt += `\n\nProduce a REVISED newsletter draft that integrates the new voice note's ideas into the existing draft. Preserve what's working, weave in the new thoughts naturally, refine awkward phrasing. Keep the same general structure unless the new voice note explicitly asks for a different angle. Output the complete revised draft as HTML. Do NOT wrap in markdown code fences.`;
+    } else {
+      userPrompt += `\n\nWrite a complete newsletter draft in HTML. Use <p>, <h2>, <blockquote>, and <a> tags. Do not include the greeting (it gets personalized per recipient). Do not include a sign-off (the template adds one). Just the body content. Do NOT wrap your output in markdown code fences (no \`\`\`html or \`\`\`). Output raw HTML directly.`;
+    }
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',

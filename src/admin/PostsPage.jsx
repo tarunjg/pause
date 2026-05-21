@@ -15,6 +15,7 @@ export default function PostsPage() {
   if (loading) return <p style={{ color: '#a89d91' }}>Loading...</p>;
 
   const drafts = posts.filter(p => p.status === 'draft');
+  const scheduled = posts.filter(p => p.status === 'scheduled');
   const sent = posts.filter(p => p.status === 'sent');
 
   return (
@@ -23,6 +24,25 @@ export default function PostsPage() {
         <h1 style={styles.title}>Posts</h1>
         <Link to="/admin/compose" style={styles.newBtn}>New Newsletter</Link>
       </div>
+
+      {scheduled.length > 0 && (
+        <>
+          <h2 style={styles.sectionTitle}>Scheduled</h2>
+          <div style={styles.list}>
+            {scheduled.map(post => (
+              <Link key={post.id} to={`/admin/compose/${post.id}`} style={styles.postRow}>
+                <div>
+                  <div style={styles.postTitle}>{post.title || '(untitled)'}</div>
+                  <div style={styles.postMeta}>
+                    Sends {post.scheduled_at ? new Date(post.scheduled_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : '?'}
+                  </div>
+                </div>
+                <span style={styles.scheduledBadge}>Scheduled</span>
+              </Link>
+            ))}
+          </div>
+        </>
+      )}
 
       {drafts.length > 0 && (
         <>
@@ -98,6 +118,10 @@ const styles = {
   viewLink: { color: '#b85c38', fontSize: 13, textDecoration: 'none' },
   draftBadge: {
     padding: '4px 10px', fontSize: 11, background: '#2a2520', color: '#a89d91',
+    borderRadius: 100,
+  },
+  scheduledBadge: {
+    padding: '4px 10px', fontSize: 11, background: '#1e2a3a', color: '#7daacb',
     borderRadius: 100,
   },
   emptyText: { color: '#6d6259', fontSize: 14 },

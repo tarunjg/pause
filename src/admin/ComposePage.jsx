@@ -18,13 +18,19 @@ export default function ComposePage() {
   const [subject, setSubject] = useState('');
   const [bodyHtml, setBodyHtml] = useState('');
   const [coverImage, setCoverImage] = useState('');
+  const [scheduledAt, setScheduledAt] = useState(null);
+  const [postStatus, setPostStatus] = useState('draft');
   const [showPreview, setShowPreview] = useState(false);
   const [showImagePicker, setShowImagePicker] = useState(false);
+  const [showSchedule, setShowSchedule] = useState(false);
+  const [scheduleInput, setScheduleInput] = useState('');
   const [saving, setSaving] = useState(false);
   const [sending, setSending] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [scheduling, setScheduling] = useState(false);
   const [sendResult, setSendResult] = useState(null);
+  const [testResult, setTestResult] = useState(null);
   const [subscriberCount, setSubscriberCount] = useState(null);
-  const [loadingDraft, setLoadingDraft] = useState(false);
   const [aiDrafting, setAiDrafting] = useState(false);
 
   // Load existing draft
@@ -38,6 +44,8 @@ export default function ComposePage() {
             setBodyHtml(post.body_html || '');
             setCoverImage(post.cover_image_url || '');
             setPostId(post.id);
+            setPostStatus(post.status || 'draft');
+            setScheduledAt(post.scheduled_at || null);
           }
         });
     }
@@ -143,7 +151,7 @@ export default function ComposePage() {
     }
 
     const count = subscriberCount || '?';
-    if (!window.confirm(`Send this newsletter to ${count} subscribers?`)) return;
+    if (!window.confirm(`Send this newsletter to ${count} subscribers? This cannot be undone.`)) return;
 
     setSending(true);
     setSendResult(null);
@@ -162,7 +170,6 @@ export default function ComposePage() {
       const data = await res.json();
       setSendResult(data);
       if (res.ok) {
-        // Navigate to posts page after a moment so user can see the success message
         setTimeout(() => navigate('/admin/posts'), 4000);
       }
     } catch (err) {
@@ -172,14 +179,129 @@ export default function ComposePage() {
     }
   }
 
+  async function sendTest() {
+    if (!subject.trim()) {
+      alert('Please add a subject line.');
+      return;
+    }
+    setTesting(true);
+    setTestResult(null);
+
+    const idToSend = await saveDraft();
+    if (!idToSend) {
+      setTesting(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/posts/${idToSend}/test-send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await res.json();
+      setTestResult(data);
+    } catch (err) {
+      setTestResult({ message: 'Test send failed: ' + err.message });
+    } finally {
+      setTesting(false);
+    }
+  }
+
+  async function schedulePost() {
+    if (!subject.trim()) {
+      alert('Please add a subject line.');
+      return;
+    }
+    if (!coverImage) {
+      alert('Please add a cover image before scheduling.');
+      return;
+    }
+    if (!scheduleInput) {
+      alert('Please pick a date and time.');
+      return;
+    }
+
+    const localDate = new Date(scheduleInput);
+    if (Number.isNaN(localDate.getTime())) {
+      alert('Invalid date.');
+      return;
+    }
+    if (localDate.getTime() <= Date.now()) {
+      alert('Schedule a future time.');
+      return;
+    }
+
+    setScheduling(true);
+
+    const idToSend = await saveDraft();
+    if (!idToSend) {
+      setScheduling(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/posts/${idToSend}/schedule`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scheduled_at: localDate.toISOString() }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setPostStatus('scheduled');
+        setScheduledAt(data.scheduled_at);
+        setShowSchedule(false);
+        setSendResult({ message: `Scheduled for ${localDate.toLocaleString()}` });
+      } else {
+        alert(data.message || 'Schedule failed');
+      }
+    } catch (err) {
+      alert('Schedule failed: ' + err.message);
+    } finally {
+      setScheduling(false);
+    }
+  }
+
+  async function unschedule() {
+    if (!postId || !window.confirm('Unschedule this newsletter? It will go back to draft status.')) return;
+    setScheduling(true);
+    try {
+      const res = await fetch(`/api/admin/posts/${postId}/schedule`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        setPostStatus('draft');
+        setScheduledAt(null);
+      }
+    } finally {
+      setScheduling(false);
+    }
+  }
+
   function handleDraftReady(draftHtml) {
     setBodyHtml(draftHtml);
   }
 
+  // Format scheduled_at for display
+  const scheduledDisplay = scheduledAt
+    ? new Date(scheduledAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+    : null;
+
+  // Default schedule input to 1 week from now in local timezone
+  function defaultScheduleValue() {
+    const d = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    // datetime-local format: YYYY-MM-DDTHH:mm
+    const pad = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  const isScheduled = postStatus === 'scheduled';
+
   return (
     <div>
       <div style={styles.header}>
-        <h1 style={styles.title}>{postId ? 'Edit Draft' : 'New Newsletter'}</h1>
+        <h1 style={styles.title}>
+          {postId ? (isScheduled ? 'Scheduled Newsletter' : 'Edit Draft') : 'New Newsletter'}
+        </h1>
         <div style={styles.actions}>
           <button onClick={saveDraft} disabled={saving || sending} style={styles.secondaryBtn}>
             {saving ? 'Saving...' : 'Save Draft'}
@@ -188,14 +310,48 @@ export default function ComposePage() {
             Preview
           </button>
           <button
-            onClick={sendNewsletter}
-            disabled={sending || !coverImage || !subject.trim() || !bodyHtml.trim()}
-            style={{ ...styles.primaryBtn, ...((!coverImage || !subject.trim() || !bodyHtml.trim()) ? { opacity: 0.4, cursor: 'not-allowed' } : {}) }}
+            onClick={sendTest}
+            disabled={testing || sending || !subject.trim() || !bodyHtml.trim()}
+            style={styles.secondaryBtn}
+            title="Sends a test copy to tarun@pauselab.org"
           >
-            {sending ? 'Sending...' : 'Send Newsletter'}
+            {testing ? 'Sending test...' : 'Send Test to Me'}
+          </button>
+          {!isScheduled && (
+            <button
+              onClick={() => { setScheduleInput(defaultScheduleValue()); setShowSchedule(true); }}
+              disabled={sending || !coverImage || !subject.trim() || !bodyHtml.trim()}
+              style={{ ...styles.secondaryBtn, ...((!coverImage || !subject.trim() || !bodyHtml.trim()) ? { opacity: 0.4, cursor: 'not-allowed' } : {}) }}
+            >
+              Schedule...
+            </button>
+          )}
+          <button
+            onClick={sendNewsletter}
+            disabled={sending || !coverImage || !subject.trim() || !bodyHtml.trim() || isScheduled}
+            style={{ ...styles.primaryBtn, ...((!coverImage || !subject.trim() || !bodyHtml.trim() || isScheduled) ? { opacity: 0.4, cursor: 'not-allowed' } : {}) }}
+          >
+            {sending ? 'Sending...' : 'Send Now'}
           </button>
         </div>
       </div>
+
+      {isScheduled && scheduledDisplay && (
+        <div style={styles.scheduledBanner}>
+          <span>📅 Scheduled to send on <strong>{scheduledDisplay}</strong></span>
+          <button onClick={unschedule} disabled={scheduling} style={styles.unscheduleBtn}>
+            {scheduling ? '...' : 'Unschedule'}
+          </button>
+        </div>
+      )}
+
+      {testResult && (
+        <div style={testResult.recipient ? styles.successBanner : styles.errorBanner}>
+          {testResult.recipient
+            ? `✓ Test sent to ${testResult.recipient} — check your inbox in a few seconds`
+            : testResult.message}
+        </div>
+      )}
 
       {sendResult && (
         <div style={sendResult.sent != null ? styles.successBanner : styles.errorBanner}>
@@ -211,7 +367,7 @@ export default function ComposePage() {
         </div>
       )}
 
-      <VoiceRecorder onDraftReady={handleDraftReady} />
+      <VoiceRecorder onDraftReady={handleDraftReady} currentDraft={bodyHtml} />
 
       <input
         type="text"
@@ -258,6 +414,31 @@ export default function ComposePage() {
           onSelect={(url) => { setCoverImage(url); setShowImagePicker(false); }}
           onClose={() => setShowImagePicker(false)}
         />
+      )}
+
+      {showSchedule && (
+        <div style={styles.modalOverlay} onClick={() => setShowSchedule(false)}>
+          <div style={styles.scheduleModal} onClick={e => e.stopPropagation()}>
+            <h3 style={styles.modalTitle}>Schedule send</h3>
+            <p style={styles.modalDesc}>
+              Pick a date and time. Your local timezone is used.
+              The newsletter will be sent within 5 minutes of the scheduled time.
+            </p>
+            <input
+              type="datetime-local"
+              value={scheduleInput}
+              onChange={e => setScheduleInput(e.target.value)}
+              style={styles.scheduleInput}
+              min={defaultScheduleValue().slice(0, 10) + 'T00:00'}
+            />
+            <div style={styles.scheduleActions}>
+              <button onClick={() => setShowSchedule(false)} style={styles.secondaryBtn}>Cancel</button>
+              <button onClick={schedulePost} disabled={scheduling || !scheduleInput} style={styles.primaryBtn}>
+                {scheduling ? 'Scheduling...' : 'Schedule'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -321,4 +502,31 @@ const styles = {
     padding: '10px 16px', background: '#1e1c19', color: '#a89d91', borderRadius: 8,
     fontSize: 13, marginBottom: 16, border: '1px solid #2a2520',
   },
+  scheduledBanner: {
+    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+    padding: '12px 16px', background: '#1e2a3a', color: '#7daacb', borderRadius: 8,
+    fontSize: 14, marginBottom: 16, border: '1px solid #2a3a4a',
+  },
+  unscheduleBtn: {
+    padding: '5px 14px', fontSize: 12, background: 'transparent', color: '#7daacb',
+    border: '1px solid #2a3a4a', borderRadius: 100, cursor: 'pointer',
+  },
+  modalOverlay: {
+    position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    zIndex: 1000, padding: 24,
+  },
+  scheduleModal: {
+    background: '#1a1816', border: '1px solid #2a2520', borderRadius: 12,
+    padding: 24, width: '100%', maxWidth: 420,
+  },
+  modalTitle: { color: '#fff', fontSize: 18, fontWeight: 500, margin: '0 0 8px' },
+  modalDesc: { color: '#a89d91', fontSize: 13, margin: '0 0 16px', lineHeight: 1.5 },
+  scheduleInput: {
+    width: '100%', padding: '12px 14px', fontSize: 15, border: '1px solid #2a2520',
+    borderRadius: 8, background: '#141210', color: '#fff', outline: 'none',
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    boxSizing: 'border-box', marginBottom: 16, colorScheme: 'dark',
+  },
+  scheduleActions: { display: 'flex', justifyContent: 'flex-end', gap: 8 },
 };

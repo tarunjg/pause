@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 
-export default function VoiceRecorder({ onDraftReady }) {
+export default function VoiceRecorder({ onDraftReady, currentDraft }) {
   const [recording, setRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [transcribing, setTranscribing] = useState(false);
@@ -71,7 +71,11 @@ export default function VoiceRecorder({ onDraftReady }) {
       const res = await fetch('/api/admin/draft', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transcript, context: context || undefined }),
+        body: JSON.stringify({
+          transcript,
+          context: context || undefined,
+          currentDraft: currentDraft || undefined,
+        }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -115,7 +119,11 @@ export default function VoiceRecorder({ onDraftReady }) {
               style={styles.draftBtn}
               type="button"
             >
-              {drafting ? 'Drafting with AI...' : 'Draft from this →'}
+              {drafting
+                ? 'Drafting with AI...'
+                : currentDraft && currentDraft.replace(/<[^>]*>/g, '').trim().length > 50
+                  ? 'Refine draft with this →'
+                  : 'Draft from this →'}
             </button>
           </>
         )}
