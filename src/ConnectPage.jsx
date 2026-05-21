@@ -1,9 +1,9 @@
 import { useState } from "react";
 
 const INTERESTS = [
-  { id: "newsletter", label: "📬 Join the Newsletter" },
-  { id: "workshop", label: "🧠 Request a Power of Pause Workshop for My Org" },
+  { id: "org", label: "🏢 Bring Pause to My Org" },
   { id: "ambassador", label: "🤝 Become a Pause Ambassador" },
+  { id: "whatsapp", label: "💬 Join the Pause WhatsApp Group" },
 ];
 
 function ConnectForm() {
@@ -31,12 +31,6 @@ function ConnectForm() {
     e.preventDefault();
     setStatus("loading");
     setErrorMessage("");
-
-    if (formData.interests.length === 0) {
-      setStatus("error");
-      setErrorMessage("Please select at least one option.");
-      return;
-    }
 
     try {
       const response = await fetch("/api/connect", {
@@ -116,7 +110,7 @@ function ConnectForm() {
       />
 
       <div className="connect-form__interests">
-        <p className="connect-form__interests-label">I'm interested in...</p>
+        <p className="connect-form__interests-label">I'm also interested in... (optional)</p>
         <div className="connect-form__pills">
           {INTERESTS.map((item) => {
             const active = formData.interests.includes(item.id);

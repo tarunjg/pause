@@ -3,27 +3,29 @@
 export function welcomeEmail(firstName, interests = []) {
   const greeting = firstName ? `Hey ${firstName},` : 'Hey there,';
 
-  // Build the middle section based on what they selected
-  const parts = [];
+  const hasOrg = interests.includes('org');
+  const hasAmbassador = interests.includes('ambassador');
+  const hasWhatsapp = interests.includes('whatsapp');
 
-  if (interests.includes('newsletter')) {
-    parts.push(`You're all set to receive our newsletter — insights from neuroscience, stories from the leaders we train, and updates as the book gets closer.`);
+  // Newsletter line is always included
+  const parts = [
+    `<p>You're on the newsletter! Expect insights from neuroscience, stories from the leaders we train, and updates as the book gets closer.</p>`
+  ];
+
+  // Add copy for additional interests
+  if (hasOrg && hasAmbassador) {
+    parts.push(`<p>We'll also follow up on bringing Pause to your org and getting you plugged into our ambassador community. Lots to come.</p>`);
+  } else if (hasOrg) {
+    parts.push(`<p>We'd love to bring Pause to your org. We'll follow up shortly with more on how that works.</p>`);
+  } else if (hasAmbassador) {
+    parts.push(`<p>We're excited you want to be a Pause Ambassador. We're building something special with our ambassador community and we'll be in touch soon.</p>`);
   }
 
-  if (interests.includes('workshop')) {
-    parts.push(`We saw you're interested in bringing the Power of Pause workshop to your org — we'd love to make that happen. We'll follow up shortly with more details on how it works and what to expect.`);
+  if (hasWhatsapp) {
+    parts.push(`<p>Here's the link to join our WhatsApp group: <a href="https://chat.whatsapp.com/LQLjDYQ6CgsA1adf0zTPM3" style="color: #b85c38;">Join the Pause WhatsApp Group</a></p>`);
   }
 
-  if (interests.includes('ambassador')) {
-    parts.push(`We're excited you want to be a Pause Ambassador. We're building something special with our ambassador community, and we'll reach out soon with more on what that looks like.`);
-  }
-
-  // Fallback if somehow no interests (shouldn't happen, but just in case)
-  if (parts.length === 0) {
-    parts.push(`Thanks for connecting with us. We'll be in touch soon.`);
-  }
-
-  const interestParagraphs = parts.map(p => `<p>${p}</p>`).join('\n    ');
+  const interestParagraphs = parts.join('\n    ');
 
   return {
     subject: "Welcome to the Pause movement",
@@ -61,7 +63,7 @@ export function welcomeEmail(firstName, interests = []) {
 
     ${interestParagraphs}
 
-    <p>Feel free to reply to this email anytime — it comes straight to us. We'd love to hear what's on your mind.</p>
+    <p>Feel free to reply to this email anytime, it comes straight to us. We'd love to hear what's on your mind.</p>
 
     <div class="signature">
       <p>Warmly,</p>
@@ -78,7 +80,7 @@ export function welcomeEmail(firstName, interests = []) {
     </div>
 
     <div class="footer">
-      <p><a href="{{unsubscribe_url}}">Unsubscribe</a></p>
+      <p>Pause Lab &middot; <a href="https://www.pauselab.org">pauselab.org</a></p>
     </div>
   </div>
 </body>

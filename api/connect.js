@@ -13,10 +13,6 @@ export default async function handler(req, res) {
     return res.status(400).json({ message: 'Please provide your name and email' });
   }
 
-  if (!interests || interests.length === 0) {
-    return res.status(400).json({ message: 'Please select at least one interest' });
-  }
-
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return res.status(400).json({ message: 'Please provide a valid email address' });
@@ -32,7 +28,7 @@ export default async function handler(req, res) {
           first_name: firstName.trim(),
           last_name: lastName ? lastName.trim() : '',
           org: org || null,
-          interests: interests,
+          interests: ['newsletter', ...(interests || [])],
           notes: notes || null,
           subscribed: true,
         },
@@ -49,7 +45,7 @@ export default async function handler(req, res) {
     }
 
     // Send welcome email via Resend
-    const welcome = welcomeEmail(firstName, interests);
+    const welcome = welcomeEmail(firstName, ['newsletter', ...(interests || [])]);
     const unsubscribeUrl = `${process.env.SITE_URL || 'https://www.pauselab.org'}/api/unsubscribe?token=${contact.unsubscribe_token}`;
 
     try {
