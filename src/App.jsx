@@ -167,6 +167,7 @@ function Nav() {
           {[["about","What We Do"],["team","Who We Are"],["book","The Book"],["newsletter","Newsletter"]].map(([id,label])=>(
             <button key={id} onClick={()=>go(id)} className="nav__link">{label}</button>
           ))}
+          <a href="/connect" className="btn btn--primary" style={{padding:"10px 22px",fontSize:"13px"}}>Connect →</a>
         </div>
         <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
           <span className={`ham-line ${menuOpen ? "ham-line--open1" : ""}`} />
@@ -179,6 +180,7 @@ function Nav() {
           {[["about","What We Do"],["team","Who We Are"],["book","The Book"],["newsletter","Newsletter"]].map(([id,label])=>(
             <button key={id} onClick={()=>go(id)} className="mobile-menu__link">{label}</button>
           ))}
+          <a href="/connect" className="mobile-menu__link" style={{color:"var(--accent)",fontWeight:500}}>Connect →</a>
         </div>
       )}
     </nav>
