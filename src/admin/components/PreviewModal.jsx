@@ -1,6 +1,9 @@
-export default function PreviewModal({ subject, bodyHtml, firstName, onClose }) {
+export default function PreviewModal({ subject, bodyHtml, coverImage, firstName, onClose }) {
   const greeting = firstName ? `Hey ${firstName},` : 'Hey,';
   const greetingHtml = `<p>${greeting}</p>`;
+  const coverImageHtml = coverImage
+    ? `<img src="${coverImage}" alt="" style="width:100%;border-radius:12px;margin:16px 0 24px;display:block;" />`
+    : '';
 
   const fullHtml = `<!DOCTYPE html>
 <html>
@@ -30,6 +33,7 @@ export default function PreviewModal({ subject, bodyHtml, firstName, onClose }) 
   <div class="container">
     <div class="logo"><span class="logo-mark">&#9673;</span> PAUSE</div>
     ${greetingHtml}
+    ${coverImageHtml}
     ${bodyHtml}
     <div class="signature">
       <p>Warmly,</p>

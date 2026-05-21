@@ -77,9 +77,13 @@ export default async function handler(req, res) {
   for (let i = 0; i < contacts.length; i += batchSize) {
     const batch = contacts.slice(i, i + batchSize);
 
+    const coverImageHtml = post.cover_image_url
+      ? `<p><img src="${post.cover_image_url}" alt="" style="width:100%;border-radius:12px;display:block;margin:16px 0;" /></p>`
+      : '';
+
     const sends = batch.map(async (contact) => {
       const greeting = contact.first_name ? `<p>Hey ${contact.first_name},</p>` : '<p>Hey,</p>';
-      const personalizedHtml = greeting + post.body_html;
+      const personalizedHtml = greeting + coverImageHtml + post.body_html;
       const email = newsletterEmail({ subject: post.title, bodyHtml: personalizedHtml });
       const unsubscribeUrl = `${siteUrl}/api/unsubscribe?token=${contact.unsubscribe_token}`;
       const html = email.html.replace('{{unsubscribe_url}}', unsubscribeUrl);

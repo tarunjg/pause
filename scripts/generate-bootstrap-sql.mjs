@@ -141,24 +141,8 @@ function generateSql() {
   lines.push('create unique index if not exists idx_contacts_unsubscribe_token on contacts(unsubscribe_token);');
   lines.push('');
 
-  // updated_at trigger
-  lines.push(`create or replace function update_updated_at()
-returns trigger as $$
-begin
-  new.updated_at = now();
-  return new;
-end;
-$$ language plpgsql;`);
-  lines.push('');
-  lines.push(`do $$
-begin
-  if not exists (select 1 from pg_trigger where tgname = 'contacts_updated_at') then
-    create trigger contacts_updated_at
-      before update on contacts
-      for each row
-      execute function update_updated_at();
-  end if;
-end $$;`);
+  // (Skipping updated_at trigger — Supabase platform doesn't like trigger/function DDL
+  //  on this project. Application code sets updated_at explicitly on every write.)
   lines.push('');
 
   // newsletter_sends
@@ -272,11 +256,10 @@ select 1, ${sqlEscape(STYLE_GUIDE_V1)}, 'approved'
 where not exists (select 1 from pause_style_guide limit 1);`);
   lines.push('');
 
-  // Storage bucket
+  // Storage bucket — create manually via Supabase UI (Storage > New bucket > pause-newsletter-images, public)
   lines.push('-- ─── storage bucket ─────────────────────────────────────────────────');
-  lines.push(`insert into storage.buckets (id, name, public)
-values ('pause-newsletter-images', 'pause-newsletter-images', true)
-on conflict (id) do nothing;`);
+  lines.push('-- Skipped — create via Supabase UI:');
+  lines.push('--   Storage → New bucket → name: pause-newsletter-images → Public: yes');
   lines.push('');
 
   lines.push('-- ─── Done ───────────────────────────────────────────────────────────');
