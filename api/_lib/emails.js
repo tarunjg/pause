@@ -1,9 +1,32 @@
 // Email templates as simple HTML strings
-// Resend also supports React Email components, but keeping it simple for now
 
-export function welcomeEmail(firstName) {
+export function welcomeEmail(firstName, interests = []) {
+  const greeting = firstName ? `Hey ${firstName},` : 'Hey there,';
+
+  // Build the middle section based on what they selected
+  const parts = [];
+
+  if (interests.includes('newsletter')) {
+    parts.push(`You're all set to receive our newsletter — insights from neuroscience, stories from the managers we train, and updates as the book gets closer.`);
+  }
+
+  if (interests.includes('workshop')) {
+    parts.push(`We saw you're interested in bringing the Power of Pause workshop to your org — we'd love to make that happen. We'll follow up shortly with more details on how it works and what to expect.`);
+  }
+
+  if (interests.includes('ambassador')) {
+    parts.push(`We're excited you want to be a Pause Ambassador. We're building something special with our ambassador community, and we'll reach out soon with more on what that looks like.`);
+  }
+
+  // Fallback if somehow no interests (shouldn't happen, but just in case)
+  if (parts.length === 0) {
+    parts.push(`Thanks for connecting with us. We'll be in touch soon.`);
+  }
+
+  const interestParagraphs = parts.map(p => `<p>${p}</p>`).join('\n    ');
+
   return {
-    subject: "Thanks for connecting with Pause Lab",
+    subject: "Welcome to the Pause movement",
     html: `
 <!DOCTYPE html>
 <html>
@@ -16,7 +39,8 @@ export function welcomeEmail(firstName) {
     .logo { font-weight: 600; font-size: 15px; letter-spacing: 0.14em; color: #141210; margin-bottom: 32px; }
     .logo-mark { color: #b85c38; }
     p { font-size: 16px; margin-bottom: 16px; }
-    .signature { margin-top: 32px; color: #6d6259; font-size: 15px; }
+    .signature { margin-top: 28px; color: #2a2520; font-size: 16px; }
+    .signature a { color: #b85c38; text-decoration: none; }
     .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid #e8e3dc; font-size: 12px; color: #a89d91; }
     .footer a { color: #b85c38; text-decoration: none; }
   </style>
@@ -25,21 +49,21 @@ export function welcomeEmail(firstName) {
   <div class="container">
     <div class="logo"><span class="logo-mark">&#9673;</span> PAUSE</div>
 
-    <p>Hey${firstName ? ` ${firstName}` : ''},</p>
+    <p>${greeting}</p>
 
-    <p>Thanks for reaching out — really glad you connected with us.</p>
+    <p>Thanks for joining the Pause movement.</p>
 
-    <p>At Pause Lab, we're building neuroscience-backed tools to help managers lead with more self-awareness, emotional regulation, and clarity. Whether you're here for the newsletter, a workshop, or just curious, you're in the right place.</p>
+    ${interestParagraphs}
 
-    <p>I'll be in touch soon with more. In the meantime, feel free to reply to this email — it comes straight to me.</p>
+    <p>Feel free to reply to this email anytime — it comes straight to us. We'd love to hear what's on your mind.</p>
 
     <div class="signature">
-      <p>Tarun<br>
-      Co-Founder, Pause Lab</p>
+      <p>Warmly,</p>
+      <p>Tarun &amp; Michael<br>
+      <a href="https://www.pauselab.org">www.pauselab.org</a></p>
     </div>
 
     <div class="footer">
-      <p>Pause Lab &middot; <a href="https://www.pauselab.org">pauselab.org</a></p>
       <p><a href="{{unsubscribe_url}}">Unsubscribe</a></p>
     </div>
   </div>
@@ -68,6 +92,8 @@ export function newsletterEmail({ subject, bodyHtml }) {
     p { font-size: 16px; margin-bottom: 16px; }
     a { color: #b85c38; }
     blockquote { border-left: 3px solid #b85c38; padding-left: 16px; margin: 24px 0; color: #6d6259; font-style: italic; }
+    .signature { margin-top: 28px; color: #2a2520; font-size: 16px; }
+    .signature a { color: #b85c38; text-decoration: none; }
     .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid #e8e3dc; font-size: 12px; color: #a89d91; }
     .footer a { color: #b85c38; text-decoration: none; }
   </style>
@@ -78,8 +104,13 @@ export function newsletterEmail({ subject, bodyHtml }) {
 
     ${bodyHtml}
 
+    <div class="signature">
+      <p>Warmly,</p>
+      <p>Tarun &amp; Michael<br>
+      <a href="https://www.pauselab.org">www.pauselab.org</a></p>
+    </div>
+
     <div class="footer">
-      <p>Pause Lab &middot; <a href="https://www.pauselab.org">pauselab.org</a></p>
       <p><a href="{{unsubscribe_url}}">Unsubscribe</a></p>
     </div>
   </div>

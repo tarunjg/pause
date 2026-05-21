@@ -49,7 +49,7 @@ export default async function handler(req, res) {
     }
 
     // Send welcome email via Resend
-    const welcome = welcomeEmail(firstName);
+    const welcome = welcomeEmail(firstName, interests);
     const unsubscribeUrl = `${process.env.SITE_URL || 'https://www.pauselab.org'}/api/unsubscribe?token=${contact.unsubscribe_token}`;
 
     try {
