@@ -1,5 +1,6 @@
-// Vercel Serverless Function for Connect page signups
-// Sends contacts to Brevo with interest tags
+import { supabase } from './_lib/supabase.js';
+import { resend, FROM_EMAIL } from './_lib/resend.js';
+import { welcomeEmail } from './_lib/emails.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -25,68 +26,55 @@ export default async function handler(req, res) {
   const firstName = nameParts[0];
   const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
 
-  const brevoApiKey = process.env.BREVO_API_KEY;
-
-  if (!brevoApiKey) {
-    console.error('BREVO_API_KEY is not configured');
-    return res.status(500).json({
-      message: 'Service is not configured yet. Please contact hello@pauselab.org'
-    });
-  }
-
   try {
-    // Build attributes including interest tags and notes
-    const attributes = {
-      FIRSTNAME: firstName,
-      LASTNAME: lastName,
-    };
+    // Upsert contact into Supabase
+    const { data: contact, error: dbError } = await supabase
+      .from('contacts')
+      .upsert(
+        {
+          email: email.toLowerCase().trim(),
+          first_name: firstName,
+          last_name: lastName,
+          org: org || null,
+          interests: interests,
+          notes: notes || null,
+          subscribed: true,
+        },
+        { onConflict: 'email' }
+      )
+      .select()
+      .single();
 
-    // Store interests and notes as attributes
-    if (org) {
-      attributes.COMPANY = org;
-    }
-    if (notes) {
-      attributes.NOTES = notes;
-    }
-    attributes.INTERESTS = interests.join(', ');
-
-    // Use the same list as newsletter (list 2), Brevo will dedupe
-    const response = await fetch('https://api.brevo.com/v3/contacts', {
-      method: 'POST',
-      headers: {
-        'accept': 'application/json',
-        'api-key': brevoApiKey,
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({
-        email: email,
-        attributes: attributes,
-        listIds: [2],
-        updateEnabled: true
-      })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      if (response.status === 400 && data.code === 'duplicate_parameter') {
-        return res.status(200).json({
-          message: 'Thanks! We already have your info and will be in touch.',
-          success: true
-        });
-      }
-
-      console.error('Brevo API error:', data);
-      return res.status(response.status).json({
-        message: 'Failed to submit. Please try again or contact hello@pauselab.org'
+    if (dbError) {
+      console.error('Supabase error:', dbError);
+      return res.status(500).json({
+        message: 'Failed to save your info. Please try again or contact hello@pauselab.org'
       });
+    }
+
+    // Send welcome email via Resend
+    const welcome = welcomeEmail(firstName);
+    const unsubscribeUrl = `${process.env.SITE_URL || 'https://www.pauselab.org'}/api/unsubscribe?token=${contact.unsubscribe_token}`;
+
+    try {
+      await resend.emails.send({
+        from: FROM_EMAIL,
+        to: email,
+        subject: welcome.subject,
+        html: welcome.html.replace('{{unsubscribe_url}}', unsubscribeUrl),
+        headers: {
+          'List-Unsubscribe': `<${unsubscribeUrl}>`,
+        },
+      });
+    } catch (emailErr) {
+      // Don't fail the signup if the welcome email fails
+      console.error('Welcome email failed:', emailErr);
     }
 
     return res.status(200).json({
       message: 'Successfully submitted!',
-      success: true
+      success: true,
     });
-
   } catch (error) {
     console.error('Connect signup error:', error);
     return res.status(500).json({
