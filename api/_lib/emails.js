@@ -43,12 +43,12 @@ export function welcomeEmail(firstName, interests = []) {
     .signature a { color: #b85c38; text-decoration: none; }
     .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid #e8e3dc; font-size: 12px; color: #a89d91; }
     .footer a { color: #b85c38; text-decoration: none; }
-    .banner { margin-top: 40px; border-radius: 12px; background: #141210; padding: 36px 28px; text-align: center; }
-    .banner-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: #b85c38; margin-bottom: 12px; }
-    .banner-heading { font-size: 22px; font-weight: 300; color: #ffffff; line-height: 1.4; margin-bottom: 16px; }
-    .banner-heading em { font-style: italic; color: #b85c38; }
-    .banner-text { font-size: 13px; color: #a89d91; line-height: 1.6; margin-bottom: 20px; }
-    .banner-btn { display: inline-block; padding: 10px 24px; background: #b85c38; color: #ffffff; font-size: 13px; font-weight: 500; border-radius: 100px; text-decoration: none; letter-spacing: 0.02em; }
+    .banner { margin-top: 40px; text-align: center; }
+    .banner img { width: 100%; border-radius: 12px; display: block; }
+    .banner-buttons { display: flex; justify-content: center; gap: 12px; margin-top: 16px; }
+    .banner-btn { display: inline-block; padding: 10px 24px; font-size: 13px; font-weight: 500; border-radius: 100px; text-decoration: none; letter-spacing: 0.02em; }
+    .banner-btn--primary { background: #b85c38; color: #ffffff; }
+    .banner-btn--secondary { background: transparent; color: #a89d91; border: 1px solid #e8e3dc; }
   </style>
 </head>
 <body>
@@ -70,10 +70,11 @@ export function welcomeEmail(firstName, interests = []) {
     </div>
 
     <div class="banner">
-      <div class="banner-eyebrow">Coming 2027 from Hachette</div>
-      <div class="banner-heading">Better leaders start with a <em>pause.</em></div>
-      <div class="banner-text">A new book on the neuroscience of self-regulation, emotional intelligence, and what it really takes to lead well.</div>
-      <a href="https://www.pauselab.org/#book" class="banner-btn">Learn More</a>
+      <a href="https://www.pauselab.org/#book"><img src="https://www.pauselab.org/pause-book.jpeg" alt="Pause — A book by Dr. Michael Platt and Tarun Galagali, coming 2027 from Hachette" /></a>
+      <div class="banner-buttons">
+        <a href="https://www.pauselab.org/#book" class="banner-btn banner-btn--primary">Learn More</a>
+        <a href="{{unsubscribe_url}}" class="banner-btn banner-btn--secondary">Unsubscribe</a>
+      </div>
     </div>
 
     <div class="footer">
