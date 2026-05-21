@@ -3,6 +3,10 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/connect", "destination": "/index.html" }
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/blog/rss.xml", "destination": "/api/blog/rss" },
+    { "source": "/blog/:slug", "destination": "/api/blog/:slug" },
+    { "source": "/(admin|blog|connect)(.*)", "destination": "/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

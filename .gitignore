@@ -4,3 +4,11 @@ dist
 *.local
 .env
 .env.local
+.env*.local
+.vercel
+
+# Local data files (PII — never commit)
+contacts-cleaned.csv
+contacts-cleaned.json
+*.bootstrap.sql
+pause-bootstrap.sql
