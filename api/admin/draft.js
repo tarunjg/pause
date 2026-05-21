@@ -61,7 +61,7 @@ export default async function handler(req, res) {
     userPrompt += `\n\nWrite a complete newsletter draft in HTML. Use <p>, <h2>, <blockquote>, <a>, and <img> tags. Do not include the greeting (it gets personalized per recipient). Do not include a sign-off (the template adds one). Just the body content.`;
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2000,
       system: `You are a ghostwriter for Tarun Galagali's Pause Lab newsletter. Write exactly in his voice using this style guide:\n\n${styleGuide}\n\nYour output is HTML that goes directly into an email template. Keep it personal, warm, grounded in neuroscience. No em dashes. 400-800 words.`,
       messages: [{ role: 'user', content: userPrompt }],
