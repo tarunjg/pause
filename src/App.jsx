@@ -41,6 +41,7 @@ function FadeIn({ children, delay = 0, className = "", style = {} }) {
 const INTERESTS = [
   { id: "newsletter", label: "Join the Newsletter" },
   { id: "workshop", label: "Request a Power of Pause Workshop for My Org" },
+  { id: "ambassador", label: "Become a Pause Ambassador" },
 ];
 
 function ConnectFormInline() {
