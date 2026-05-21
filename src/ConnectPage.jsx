@@ -2,13 +2,14 @@ import { useState } from "react";
 
 const INTERESTS = [
   { id: "newsletter", label: "Join the Newsletter" },
-  { id: "workshop", label: "Request a Power of Pause Workshop" },
+  { id: "workshop", label: "Request a Power of Pause Workshop for My Org" },
 ];
 
 function ConnectForm() {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
+    org: "",
     interests: [],
     notes: "",
   });
@@ -92,6 +93,15 @@ function ConnectForm() {
           disabled={status === "loading"}
         />
       </div>
+      <input
+        type="text"
+        name="org"
+        placeholder="Organization (optional)"
+        value={formData.org}
+        onChange={handleChange}
+        className="form-input connect-form__org"
+        disabled={status === "loading"}
+      />
 
       <div className="connect-form__interests">
         <p className="connect-form__interests-label">I'm interested in...</p>
@@ -244,6 +254,7 @@ const connectCSS = `
   .form-input:focus { outline:none; border-color:rgba(255,255,255,0.3); background:rgba(255,255,255,0.08); }
   .form-input:disabled { opacity:0.5; cursor:not-allowed; }
 
+  .connect-form__org { margin-bottom:20px; }
   .connect-form__interests { margin-bottom:20px; }
   .connect-form__interests-label {
     font-size:13px; color:var(--soft); font-weight:400; margin-bottom:10px;

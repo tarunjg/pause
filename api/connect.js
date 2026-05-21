@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const { fullName, email, interests, notes } = req.body;
+  const { fullName, email, org, interests, notes } = req.body;
 
   if (!fullName || !email) {
     return res.status(400).json({ message: 'Please provide your name and email' });
@@ -42,6 +42,9 @@ export default async function handler(req, res) {
     };
 
     // Store interests and notes as attributes
+    if (org) {
+      attributes.COMPANY = org;
+    }
     if (notes) {
       attributes.NOTES = notes;
     }
