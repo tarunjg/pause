@@ -34,19 +34,30 @@ export default async function handler(req, res) {
       source: 'import',
     }));
 
-    const { data, error } = await supabase
-      .from('contacts')
-      .upsert(rows, { onConflict: 'email', ignoreDuplicates: false })
-      .select('email');
+    const CHUNK_SIZE = 200;
+    let imported = 0;
 
-    if (error) {
-      console.error('Import error:', error);
-      return res.status(500).json({ message: 'Import failed', error: error.message });
+    for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
+      const chunk = rows.slice(i, i + CHUNK_SIZE);
+      const { data, error } = await supabase
+        .from('contacts')
+        .upsert(chunk, { onConflict: 'email', ignoreDuplicates: false })
+        .select('email');
+
+      if (error) {
+        console.error(`Import chunk error (rows ${i}-${i + chunk.length}):`, error);
+        return res.status(500).json({
+          message: `Import failed at row ${i}. ${imported} contacts imported before failure.`,
+          imported,
+          error: error.message,
+        });
+      }
+      imported += data.length;
     }
 
     return res.status(200).json({
-      message: `Imported ${data.length} contacts`,
-      count: data.length,
+      message: `Imported ${imported} contacts`,
+      count: imported,
     });
   } catch (error) {
     console.error('Import error:', error);

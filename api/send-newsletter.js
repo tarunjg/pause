@@ -27,26 +27,36 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Fetch all subscribed contacts
-    const { data: contacts, error } = await supabase
-      .from('contacts')
-      .select('email, first_name, unsubscribe_token')
-      .eq('subscribed', true);
+    const PAGE_SIZE = 500;
+    let contacts = [];
+    let from = 0;
 
-    if (error) {
-      console.error('Supabase error:', error);
-      return res.status(500).json({ message: 'Failed to fetch contacts' });
+    while (true) {
+      const { data, error } = await supabase
+        .from('contacts')
+        .select('email, first_name, unsubscribe_token')
+        .eq('subscribed', true)
+        .range(from, from + PAGE_SIZE - 1);
+
+      if (error) {
+        console.error('Supabase error:', error);
+        return res.status(500).json({ message: 'Failed to fetch contacts' });
+      }
+      if (!data || data.length === 0) break;
+      contacts = contacts.concat(data);
+      if (data.length < PAGE_SIZE) break;
+      from += PAGE_SIZE;
     }
 
-    if (!contacts || contacts.length === 0) {
+    if (contacts.length === 0) {
       return res.status(200).json({ message: 'No subscribed contacts', sent: 0 });
     }
 
     const siteUrl = process.env.SITE_URL || 'https://www.pauselab.org';
     const email = newsletterEmail({ subject, bodyHtml });
 
-    // Send in batches of 50 to avoid rate limits
-    const batchSize = 50;
+    const batchSize = 10;
+    const BATCH_DELAY_MS = 1000;
     let sent = 0;
     let failed = 0;
 
@@ -75,9 +85,12 @@ export default async function handler(req, res) {
       });
 
       await Promise.all(sends);
+
+      if (i + batchSize < contacts.length) {
+        await new Promise((r) => setTimeout(r, BATCH_DELAY_MS));
+      }
     }
 
-    // Log the send
     await supabase.from('newsletter_sends').insert({
       subject,
       recipients: sent,

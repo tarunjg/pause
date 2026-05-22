@@ -1,10 +1,18 @@
 import { supabase } from './_lib/supabase.js';
 import { resend, FROM_EMAIL } from './_lib/resend.js';
 import { welcomeEmail } from './_lib/emails.js';
+import { rateLimit } from './_lib/rate-limit.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
+  }
+
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
+  const { ok, retryAfter } = rateLimit(ip, 5);
+  if (!ok) {
+    res.setHeader('Retry-After', retryAfter);
+    return res.status(429).json({ message: 'Too many requests. Please try again shortly.' });
   }
 
   const { firstName, lastName, email, org, interests, notes } = req.body;
@@ -19,7 +27,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Upsert contact into Supabase
     const { data: contact, error: dbError } = await supabase
       .from('contacts')
       .upsert(
@@ -44,7 +51,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // Send welcome email via Resend
     const welcome = welcomeEmail(firstName, ['newsletter', ...(interests || [])]);
     const unsubscribeUrl = `${process.env.SITE_URL || 'https://www.pauselab.org'}/api/unsubscribe?token=${contact.unsubscribe_token}`;
 
@@ -59,7 +65,6 @@ export default async function handler(req, res) {
         },
       });
     } catch (emailErr) {
-      // Don't fail the signup if the welcome email fails
       console.error('Welcome email failed:', emailErr);
     }
 
@@ -68,6 +73,12 @@ export default async function handler(req, res) {
       success: true,
     });
   } catch (error) {
+    if (error.name === 'AbortError') {
+      console.error('Connect request timed out');
+      return res.status(504).json({
+        message: 'Request timed out. Please try again.'
+      });
+    }
     console.error('Connect signup error:', error);
     return res.status(500).json({
       message: 'An error occurred. Please try again or contact hello@pauselab.org'

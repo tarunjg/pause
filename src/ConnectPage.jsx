@@ -219,7 +219,7 @@ const connectCSS = `
   }
 
   .connect-page__inner {
-    max-width:520px; width:100%; text-align:center;
+    max-width:560px; width:100%; text-align:center;
   }
 
   .connect-page__logo {
@@ -238,17 +238,17 @@ const connectCSS = `
 
   .connect-page__sub {
     font-size:clamp(15px,1.8vw,17px); color:var(--soft); line-height:1.75; font-weight:300;
-    max-width:440px; margin:0 auto 40px;
+    max-width:440px; margin:0 auto 48px;
   }
 
   .dot { color:var(--accent); }
   .logo__mark { color:var(--accent); font-size:18px; }
 
   /* Form */
-  .connect-form { width:100%; text-align:left; }
+  .connect-form { width:100%; text-align:left; display:flex; flex-direction:column; gap:24px; }
 
   .connect-form__fields {
-    display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;
+    display:grid; grid-template-columns:1fr 1fr; gap:14px;
   }
 
   .form-input {
@@ -260,13 +260,11 @@ const connectCSS = `
   .form-input:focus { outline:none; border-color:rgba(255,255,255,0.3); background:rgba(255,255,255,0.08); }
   .form-input:disabled { opacity:0.5; cursor:not-allowed; }
 
-  .connect-form__email { margin-bottom:12px; }
-  .connect-form__org { margin-bottom:20px; }
-  .connect-form__interests { margin-bottom:20px; }
+  .connect-form__interests { margin-top:12px; margin-bottom:12px; }
   .connect-form__interests-label {
-    font-size:13px; color:var(--soft); font-weight:400; margin-bottom:10px;
+    font-size:13px; color:var(--soft); font-weight:400; margin-bottom:12px;
   }
-  .connect-form__pills { display:flex; flex-wrap:wrap; gap:10px; }
+  .connect-form__pills { display:flex; flex-wrap:wrap; gap:12px; }
 
   .connect-pill {
     padding:10px 20px; border-radius:100px; font-size:14px; font-weight:400;
@@ -280,12 +278,13 @@ const connectCSS = `
   .connect-pill:disabled { opacity:0.5; cursor:not-allowed; }
 
   .connect-form__notes {
-    margin-bottom:24px; resize:vertical; min-height:80px;
+    resize:vertical; min-height:80px;
   }
 
   .btn {
-    display:inline-block; padding:14px 30px; border-radius:100px;
+    display:block; width:100%; padding:16px 30px; border-radius:100px;
     font-size:15px; font-weight:500; letter-spacing:.02em; transition:all .25s ease; cursor:pointer;
+    margin-top:8px;
   }
   .btn--white { background:#fff; color:var(--ink); border:none; }
   .btn--white:hover { background:var(--cream); transform:translateY(-1px); }
@@ -312,7 +311,7 @@ const connectCSS = `
   .connect-page__link { color:var(--accent); }
   .connect-page__link:hover { text-decoration:underline; }
 
-  @media(max-width:520px) {
+  @media(max-width:560px) {
     .connect-form__fields { grid-template-columns:1fr; }
     .connect-form__pills { flex-direction:column; }
   }

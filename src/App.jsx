@@ -648,22 +648,20 @@ const globalCSS = `
   /* ─── NEWSLETTER ─── */
   .newsletter__sub {
     font-size:clamp(15px,1.8vw,17px); color:var(--soft); line-height:1.75; font-weight:300;
-    max-width:520px; margin:0 auto 36px;
+    max-width:520px; margin:0 auto 48px;
   }
   .newsletter__note { font-size:12.5px; color:var(--mid); margin-top:16px; font-weight:300; }
 
   /* ─── CONNECT FORM ─── */
-  .connect-form { width:100%; max-width:520px; margin:0 auto; text-align:left; }
+  .connect-form { width:100%; max-width:560px; margin:0 auto; text-align:left; display:flex; flex-direction:column; gap:24px; }
   .connect-form__fields {
-    display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;
+    display:grid; grid-template-columns:1fr 1fr; gap:14px;
   }
-  .connect-form__email { margin-bottom:12px; }
-  .connect-form__org { margin-bottom:20px; }
-  .connect-form__interests { margin-bottom:20px; }
+  .connect-form__interests { margin-top:12px; margin-bottom:12px; }
   .connect-form__interests-label {
-    font-size:13px; color:var(--soft); font-weight:400; margin-bottom:10px;
+    font-size:13px; color:var(--soft); font-weight:400; margin-bottom:12px;
   }
-  .connect-form__pills { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+  .connect-form__pills { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; }
   .connect-pill {
     padding:10px 20px; border-radius:100px; font-size:14px; font-weight:400;
     border:1.5px solid rgba(255,255,255,0.15); color:var(--soft);
@@ -674,11 +672,12 @@ const globalCSS = `
     border-color:var(--accent); color:#fff; background:rgba(184,92,56,0.15);
   }
   .connect-pill:disabled { opacity:0.5; cursor:not-allowed; }
-  .connect-form__notes { margin-bottom:24px; resize:vertical; min-height:80px; }
+  .connect-form__notes { resize:vertical; min-height:80px; }
+  .connect-form .btn { display:block; width:100%; margin-top:8px; }
   .form-input {
     padding:15px 18px; border:1.5px solid rgba(255,255,255,0.15); border-radius:8px;
     background:rgba(255,255,255,0.05); color:#fff; font-size:15px; font-family:inherit;
-    transition:all 0.25s cubic-bezier(.22,1,.36,1);
+    transition:all 0.25s cubic-bezier(.22,1,.36,1); width:100%;
   }
   .form-input::placeholder { color:rgba(255,255,255,0.4); }
   .form-input:focus {

@@ -14,5 +14,19 @@
       "path": "/api/cron/send-scheduled",
       "schedule": "*/5 * * * *"
     }
-  ]
+  ],
+  "functions": {
+    "api/connect.js": {
+      "maxDuration": 10
+    },
+    "api/unsubscribe.js": {
+      "maxDuration": 10
+    },
+    "api/send-newsletter.js": {
+      "maxDuration": 300
+    },
+    "api/import-contacts.js": {
+      "maxDuration": 60
+    }
+  }
 }

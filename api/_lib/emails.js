@@ -14,9 +14,9 @@ export function welcomeEmail(firstName, interests = []) {
 
   // Add copy for additional interests
   if (hasOrg && hasAmbassador) {
-    parts.push(`<p>We'll also follow up on bringing Pause to your org and getting you plugged into our ambassador community. Lots to come.</p>`);
+    parts.push(`<p>We'd love to bring Pause to your org — what did you have in mind? Reply and let us know. We'll also get you plugged into our ambassador community. Lots to come.</p>`);
   } else if (hasOrg) {
-    parts.push(`<p>We'd love to bring Pause to your org. We'll follow up shortly with more on how that works.</p>`);
+    parts.push(`<p>We'd love to bring Pause to your org. What did you have in mind? Reply and let us know — whether it's a workshop, a lunch-and-learn, or something else entirely, we'll make it happen.</p>`);
   } else if (hasAmbassador) {
     parts.push(`<p>We're excited you want to be a Pause Ambassador. We're building something special with our ambassador community and we'll be in touch soon.</p>`);
   }
@@ -46,11 +46,9 @@ export function welcomeEmail(firstName, interests = []) {
     .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid #e8e3dc; font-size: 12px; color: #a89d91; }
     .footer a { color: #b85c38; text-decoration: none; }
     .banner { margin-top: 40px; text-align: center; }
-    .banner img { width: 100%; border-radius: 12px; display: block; }
-    .banner-buttons { display: flex; justify-content: center; gap: 12px; margin-top: 16px; }
-    .banner-btn { display: inline-block; padding: 10px 24px; font-size: 13px; font-weight: 500; border-radius: 100px; text-decoration: none; letter-spacing: 0.02em; }
-    .banner-btn--primary { background: #b85c38; color: #ffffff; }
-    .banner-btn--secondary { background: transparent; color: #a89d91; border: 1px solid #e8e3dc; }
+    .banner img { width: 80%; border-radius: 12px; display: block; margin: 0 auto; }
+    .banner-buttons { text-align: center; margin-top: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .banner-btn { display: inline-block; padding: 10px 32px; margin: 6px 12px; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-weight: 500; border-radius: 100px; text-decoration: none; background: transparent; color: #a89d91; border: 1px solid #e8e3dc; }
   </style>
 </head>
 <body>
@@ -74,13 +72,9 @@ export function welcomeEmail(firstName, interests = []) {
     <div class="banner">
       <a href="https://www.pauselab.org/#book"><img src="https://www.pauselab.org/pause-book.jpeg" alt="Pause — A book by Dr. Michael Platt and Tarun Galagali, coming 2027 from Hachette" /></a>
       <div class="banner-buttons">
-        <a href="https://www.pauselab.org/#book" class="banner-btn banner-btn--primary">Learn More</a>
-        <a href="{{unsubscribe_url}}" class="banner-btn banner-btn--secondary">Unsubscribe</a>
+        <a href="https://www.pauselab.org/#book" class="banner-btn">Learn More</a>
+        <a href="{{unsubscribe_url}}" class="banner-btn">Unsubscribe</a>
       </div>
-    </div>
-
-    <div class="footer">
-      <p>Pause Lab &middot; <a href="https://www.pauselab.org">pauselab.org</a></p>
     </div>
   </div>
 </body>
@@ -110,8 +104,10 @@ export function newsletterEmail({ subject, bodyHtml }) {
     blockquote { border-left: 3px solid #b85c38; padding-left: 16px; margin: 24px 0; color: #6d6259; font-style: italic; }
     .signature { margin-top: 28px; color: #2a2520; font-size: 16px; }
     .signature a { color: #b85c38; text-decoration: none; }
-    .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid #e8e3dc; font-size: 12px; color: #a89d91; }
-    .footer a { color: #b85c38; text-decoration: none; }
+    .banner { margin-top: 40px; text-align: center; }
+    .banner img { width: 80%; border-radius: 12px; display: block; margin: 0 auto; }
+    .banner-buttons { text-align: center; margin-top: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .banner-btn { display: inline-block; padding: 10px 32px; margin: 6px 12px; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-weight: 500; border-radius: 100px; text-decoration: none; background: transparent; color: #a89d91; border: 1px solid #e8e3dc; }
   </style>
 </head>
 <body>
@@ -122,12 +118,16 @@ export function newsletterEmail({ subject, bodyHtml }) {
 
     <div class="signature">
       <p>Warmly,</p>
-      <p>Tarun &amp; Michael<br>
-      <a href="https://www.pauselab.org">www.pauselab.org</a></p>
+      <p>Tarun</p>
     </div>
 
-    <div class="footer">
-      <p><a href="{{unsubscribe_url}}">Unsubscribe</a></p>
+    <div class="banner">
+      <a href="https://www.pauselab.org/#book"><img src="https://www.pauselab.org/pause-book.jpeg" alt="Pause — A book by Dr. Michael Platt and Tarun Galagali, coming 2027 from Hachette" /></a>
+      <div class="banner-buttons">
+        <a href="https://www.pauselab.org/#book" class="banner-btn">Learn More</a>
+        <a href="https://www.pauselab.org/connect" class="banner-btn">Subscribe</a>
+        <a href="{{unsubscribe_url}}" class="banner-btn">Unsubscribe</a>
+      </div>
     </div>
   </div>
 </body>
